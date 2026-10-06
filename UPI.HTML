@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>Purple UPI AutoPay - With Cost</title>
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+ <style>
+ body {
+ /* Light Purple Background */
+ background-color: #f3e5f5; 
+ font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+ display: flex;
+ justify-content: center;
+ align-items: center;
+ min-height: 100vh;
+ margin: 0;
+ padding: 20px;
+ }
+
+ .card {
+ background: white;
+ padding: 30px;
+ border-radius: 16px;
+ /* Purple Shadow */
+ box-shadow: 0 8px 25px rgba(106, 27, 154, 0.2); 
+ width: 100%;
+ max-width: 480px;
+ border: 1px solid #e1bee7;
+ position: relative;
+ }
+
+ h2 {
+ text-align: center;
+ /* Deep Purple Title */
+ color: #6a1b9a; 
+ margin-bottom: 25px;
+ font-size: 24px;
+ }
+
+ /* New Welcome Title Style */
+ .welcome-title {
+ text-align: center;
+ color: #7b1fa2;
+ font-size: 28px;
+ font-weight: 800;
+ margin-bottom: 10px;
+ letter-spacing: 1px;
+ text-transform: uppercase;
+ border-bottom: 2px solid #e1bee7;
+ padding-bottom: 15px;
+ margin-top: 0;
+ }
+
+ .input-group {
+ margin-bottom: 15px;
+ }
+
+ label {
+ display: block;
+ margin-bottom: 6px;
+ font-weight: 600;
+ color: #4a148c;
+ font-size: 14px;
+ }
+
+ input, select {
+ width: 100%;
+ padding: 12px;
+ border: 2px solid #e1bee7;
+ border-radius: 8px;
+ font-size: 16px;
+ box-sizing: border-box;
+ outline: none;
+ transition: border-color 0.3s;
+ }
+
+ input:focus, select:focus {
+ border-color: #9c27b0;
+ }
+
+ /* Button Color */
+ button {
+ width: 100%;
+ padding: 16px;
+ /* Vibrant Purple Button */
+ background-color: #9c27b0; 
+ color: white;
+ border: none;
+ border-radius: 8px;
+ font-size: 18px;
+ font-weight: bold;
+ cursor: pointer;
+ margin-top: 15px;
+ transition: background-color 0.3s, transform 0.1s;
+ }
+
+ button:hover {
+ /* Darker Purple on Hover */
+ background-color: #7b1fa2; 
+ }
+
+ button:active {
+ transform: scale(0.98);
+ }
+
+ .qr-section {
+ display: none;
+ margin-top: 30px;
+ border-top: 2px solid #e1bee7;
+ padding-top: 25px;
+ }
+
+ .qr-box {
+ text-align: center;
+ margin-bottom: 25px;
+ }
+
+ .qr-title {
+ font-weight: bold;
+ color: #6a1b9a;
+ margin-bottom: 15px;
+ display: block;
+ font-size: 18px;
+ }
+
+ .link-box {
+ background: #f3e5f5;
+ border: 1px solid #ce93d8;
+ padding: 12px;
+ border-radius: 6px;
+ font-size: 12px;
+ word-break: break-all;
+ color: #4a148c;
+ margin-top: 10px;
+ min-height: 40px;
+ }
+
+ .note {
+ font-size: 13px;
+ color: #8e24aa;
+ margin-top: 10px;
+ line-height: 1.5;
+ }
+
+ .row {
+ display: flex;
+ gap: 10px;
+ }
+
+ .col {
+ flex: 1;
+ }
+
+ /* Cost Display Styles */
+ .cost-display {
+ background: #e1bee7;
+ padding: 15px;
+ border-radius: 8px;
+ margin-top: 15px;
+ text-align: center;
+ border: 1px dashed #9c27b0;
+ }
+
+ .cost-label {
+ font-size: 14px;
+ color: #4a148c;
+ margin-bottom: 5px;
+ display: block;
+ }
+
+ .cost-value {
+ font-size: 24px;
+ font-weight: bold;
+ color: #6a1b9a;
+ }
+ 
+ /* Credit / Made by Style */
+ .credit {
+ text-align: center;
+ margin-top: 20px;
+ font-size: 14px;
+ color: #6a1b9a;
+ font-weight: 500;
+ }
+ </style>
+</head>
+<body>
+
+<div class="card">
+ <!-- Added Welcome Title -->
+ <h1 class="welcome-title">WELCOME TO @S4SEC FAMILY</h1>
+ 
+ <h2>UPI AutoPay Generator</h2>
+ 
+ <div class="input-group">
+ <label>Your UPI ID (e.g., name@oksbi)</label>
+ <input type="text" id="upiId" placeholder="yourname@bank">
+ </div>
+
+ <div class="input-group">
+ <label>Merchant Name (Appears on Phone)</label>
+ <input type="text" id="name" placeholder="Your Business Name">
+ </div>
+
+ <div class="row">
+ <div class="col input-group">
+ <label>Amount per Transaction (₹)</label>
+ <input type="number" id="amount" value="500" min="1" oninput="calculateCost()">
+ </div>
+ <div class="col input-group">
+ <label>Frequency</label>
+ <select id="frequency" onchange="calculateCost()">
+ <option value="FNX">Monthly</option>
+ <option value="WEEKLY">Weekly</option>
+ <option value="QUARTERLY">Quarterly</option>
+ <option value="YEARLY">Yearly</option>
+ </select>
+ </div>
+ </div>
+
+ <div class="input-group">
+ <label>Duration (Days) - Set auto-cut period</label>
+ <input type="number" id="durationDays" placeholder="e.g., 30, 90, 365" min="1" max="365" oninput="calculateCost()">
+ <div class="note" style="margin-top:5px; font-size:12px; color:#8e24aa;">
+ *Max UPI limit is 365 days (1 year).
+ </div>
+ </div>
+
+ <div class="input-group">
+ <label>Description (Optional)</label>
+ <input type="text" id="desc" value="Monthly Subscription">
+ </div>
+
+ <!-- Cost Display Section -->
+ <div class="cost-display">
+ <span class="cost-label">Total Estimated Cost:</span>
+ <span class="cost-value" id="totalCost">₹0</span>
+ </div>
+
+ <button onclick="generateAutoPayQR()">Generate AutoPay QR</button>
+
+ <div class="qr-section" id="qrSection">
+ 
+ <div class="qr-box">
+ <span class="qr-title">Scan to Activate AutoPay</span>
+ <div id="qr1"></div>
+ <div class="link-box" id="linkOutput"></div>
+ <div class="note">
+ <strong>Instruction:</strong> User ko ye QR scan karke confirm karna hai. 
+ <br>
+ <strong>Duration:</strong> <span id="displayDuration"></span> days.
+ <br>
+ <strong>Total Charge:</strong> <span id="displayTotalCost" style="color:#9c27b0; font-weight:bold;"></span>
+ </div>
+ </div>
+
+ </div>
+
+ <!-- Added Credit Section -->
+ <div class="credit">
+ Made by @S4sec
+ </div>
+</div>
+
+<script>
+ function calculateCost() {
+ const amount = parseFloat(document.getElementById('amount').value) || 0;
+ const frequency = document.getElementById('frequency').value;
+ const durationDays = parseInt(document.getElementById('durationDays').value) || 0;
+
+ if (durationDays <= 0) {
+ document.getElementById('totalCost').innerText = "₹0";
+ return;
+ }
+
+ let totalCost = 0;
+
+ // Calculate based on frequency
+ if (frequency === 'WEEKLY') {
+ totalCost = amount * Math.ceil(durationDays / 7);
+ } else if (frequency === 'FNX') {
+ // For Monthly, assume ~30 days per cycle
+ totalCost = amount * Math.ceil(durationDays / 30);
+ } else if (frequency === 'QUARTERLY') {
+ // For Quarterly, assume ~90 days
+ totalCost = amount * Math.ceil(durationDays / 90);
+ } else if (frequency === 'YEARLY') {
+ // For Yearly, assume 365 days
+ totalCost = amount * Math.ceil(durationDays / 365);
+ }
+
+ document.getElementById('totalCost').innerText = "₹" + totalCost.toLocaleString('en-IN');
+ }
+
+ function generateAutoPayQR() {
+ // 1. Get Values
+ const upiId = document.getElementById('upiId').value.trim();
+ const name = document.getElementById('name').value.trim();
+ const amount = document.getElementById('amount').value.trim();
+ const frequency = document.getElementById('frequency').value;
+ const durationDays = document.getElementById('durationDays').value.trim();
+ const desc = document.getElementById('desc').value.trim();
+
+ // 2. Validation
+ if (!upiId.includes('@')) {
+ alert("Please enter a valid UPI ID");
+ return;
+ }
+ if (!amount || amount <= 0) {
+ alert("Please enter a valid amount.");
+ return;
+ }
+ if (!durationDays || durationDays <= 0) {
+ alert("Please enter the number of days for duration.");
+ return;
+ }
+
+ // 3. Calculate End Date
+ const today = new Date();
+ const endDate = new Date(today);
+ endDate.setDate(today.getDate() + parseInt(durationDays));
+ 
+ const year = endDate.getFullYear();
+ const month = String(endDate.getMonth() + 1).padStart(2, '0');
+ const day = String(endDate.getDate()).padStart(2, '0');
+ const endDateStr = `${year}${month}${day}`;
+
+ // 4. Calculate Total Cost for Display
+ const amountVal = parseFloat(amount);
+ let totalCost = 0;
+ if (frequency === 'WEEKLY') {
+ totalCost = amountVal * Math.ceil(parseInt(durationDays) / 7);
+ } else if (frequency === 'FNX') {
+ totalCost = amountVal * Math.ceil(parseInt(durationDays) / 30);
+ } else if (frequency === 'QUARTERLY') {
+ totalCost = amountVal * Math.ceil(parseInt(durationDays) / 90);
+ } else if (frequency === 'YEARLY') {
+ totalCost = amountVal * Math.ceil(parseInt(durationDays) / 365);
+ }
+
+ // 5. Construct UPI AutoPay URL
+ const trId = "MAND" + Math.floor(Math.random() * 1000000); 
+ 
+ const upiLink = `upi://pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent(name)}&am=${amount}&cu=INR&tn=${encodeURIComponent(desc)}&fn=${frequency}&eu=${endDateStr}&tr=${trId}`;
+
+ // 6. Update UI
+ document.getElementById('displayDuration').innerText = `${durationDays} Days (Ends: ${endDateStr})`;
+ document.getElementById('displayTotalCost').innerText = `₹${totalCost.toLocaleString('en-IN')}`;
+ document.getElementById('qrSection').style.display = 'block';
+ document.getElementById('linkOutput').innerText = upiLink;
+
+ // 7. Clear Previous QR
+ document.getElementById('qr1').innerHTML = "";
+
+ // 8. Generate QR Code
+ new QRCode(document.getElementById("qr1"), {
+ text: upiLink,
+ width: 250,
+ height: 250,
+ colorDark : "#000000",
+ colorLight : "#ffffff",
+ correctLevel : QRCode.CorrectLevel.H
+ });
+ }
+
+ // Initialize cost calculation on load
+ window.onload = function() {
+ calculateCost();
+ };
+</script>
+
+</body>
+</html>
